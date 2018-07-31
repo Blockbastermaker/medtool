@@ -188,15 +188,38 @@ class LoadQPCRData :
         self.fn = input
         self.df = self.loadDataFile()
 
+        self.features_all = self.df.columns
+
+        self.lineIndex = self.line_index()
+
     def loadDataFile(self, header_index=6):
+        '''
+        load files
+        ----------------------
+        :param header_index: int, the index of the header line
+        :return: pd.DataFrame
+        '''
 
         return pd.read_excel(self.fn, header=header_index)
 
     def line_index(self, start=2, dt=4):
-
-        return self.df.columns[0][start::dt].index
+        '''
+        get only partial of the dataframe,
+        keep only some lines using dt and start
+        ----------------------
+        :param start: int, the starting line index
+        :param dt: int, delta (or gap) between lines
+        :return: np.array
+        '''
+        return np.array(self.df[self.features_all[0]][start::dt].index)
 
     def getLine_by_index(self, index):
+        '''
+        subset a dataframe by index
+        ----------------------
+        :param index: np.array
+        :return: pd.DataFrame
+        '''
 
         return self.df.iloc[index]
 

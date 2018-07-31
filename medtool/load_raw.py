@@ -2,6 +2,10 @@
 import pandas as pd
 import numpy as np
 import os
+from pandas import ExcelWriter
+from pandas import ExcelFile
+import openpyxl
+import xlrd
 
 class LoadRawCsv :
 
@@ -73,7 +77,6 @@ class LoadRawCsv :
     def get_units(self, unit_feature=None):
 
         self.units = self.dataframe[unit_feature].values[:len(self.measure_type)]
-
 
 class DataSetClean :
 
@@ -147,15 +150,16 @@ class DataSetClean :
 
         self.measure_newtype = newf
 
-    def save_results(self, output="cleaned_dataset.csv"):
+    def save_results(self, output="cleaned_dataset.csv", encoding="utf_8_sig"):
         '''
         save the processed dataset to a new file
         ----------------------
-        :param output:
+        :param output: str, output csv file
+        :param encoding: str, encoding methods, default is utf_8_sig
         :return:
         '''
 
-        self.dataframe_clean.to_csv(output, header=True, sep=",", encoding="UTF-8", index=False)
+        self.dataframe_clean.to_csv(output, header=True, sep=",", encoding=encoding, index=False)
 
     def groupping(self, group_infor=[]):
         '''
@@ -168,9 +172,32 @@ class DataSetClean :
         self.dataframe_clean["Group"] = group_infor
 
     def add_features(self, feature_name, feature_values):
+        '''
+        add a feature into the the dataframe
+        ---------------------
+        :param feature_name:
+        :param feature_values:
+        :return:
+        '''
         self.dataframe_clean[feature_name] = feature_values
 
+class LoadQPCRData :
 
+    def __init__(self, input):
 
+        self.fn = input
+        self.df = self.loadDataFile()
+
+    def loadDataFile(self, header_index=6):
+
+        return pd.read_excel(self.fn, header=header_index)
+
+    def line_index(self, start=2, dt=4):
+
+        return self.df.columns[0][start::dt].index
+
+    def getLine_by_index(self, index):
+
+        return self.df.iloc[index]
 
 

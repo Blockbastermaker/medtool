@@ -13,8 +13,10 @@ class LoadRawCsv :
         else :
             self.rawdata = None
 
+        # the dataset
         self.dataframe = None
 
+        # all the features
         self.features_all = None
         self.result_features = None
 
@@ -27,8 +29,10 @@ class LoadRawCsv :
         # all the measurements for each patient
         self.measure_type = None
 
+        # the unique patient identifier
         self.patients_id = None
 
+        # the units of the measurement
         self.units = None
 
     def loadraw(self, delimiter="\t", encoding="GBK"):
@@ -59,8 +63,9 @@ class LoadRawCsv :
 
     def patients(self, id_feature=None):
         '''
+        get the patient unique identifier, or say ID number
         ----------------------
-        :param id_feature: the patient unique identifier
+        :param id_feature: str, the patient unique identifier
         :return:
         '''
         self.patients_id = self.dataframe[id_feature].unique()
@@ -129,6 +134,13 @@ class DataSetClean :
             pass
 
     def measure_newf(self, measure_type, units):
+        '''
+        for the measurement types, now give them new names
+        ---------------------
+        :param measure_type: list, original measurement types
+        :param units: list, the units of the measurement
+        :return:
+        '''
         newf = []
         for f, u in zip(measure_type, units):
             newf.append("R_".join(f.split(",")) + "_" + u)
@@ -143,11 +155,20 @@ class DataSetClean :
         :return:
         '''
 
-        self.dataframe_clean.to_csv(output, header=True, sep=",", encoding="GBK", index=False)
+        self.dataframe_clean.to_csv(output, header=True, sep=",", encoding="UTF-8", index=False)
 
     def groupping(self, group_infor=[]):
+        '''
+        add groupping information to the dataset
+        ---------------------
+        :param group_infor:
+        :return:
+        '''
 
         self.dataframe_clean["Group"] = group_infor
+
+    def add_features(self, feature_name, feature_values):
+        self.dataframe_clean[feature_name] = feature_values
 
 
 

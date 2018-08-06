@@ -11,6 +11,8 @@ class FeatureSelection :
         self.Y = Y
         self.pca = None
 
+        self.key_features = None
+
     def featureImportance(self, firstNo=100):
         """
         get the importance of each feature, and get the first several important features
@@ -96,6 +98,8 @@ class FeatureSelection :
                                 features[i] in key_fe and \
                                 features[j] in key_fe:
                         key_fe.remove(features[i])
+
+        self.key_features = key_fe
         return X[key_fe], key_fe
 
     def PCA(self):
@@ -119,7 +123,8 @@ class DataClean :
 
     def __init__(self):
         self.df = None
-        self.X
+        self.X  = None
+        self.scaler = None
 
     def loadDataFile(self, dataf, delimiter=",", header=0):
         """
@@ -138,9 +143,10 @@ class DataClean :
         :return: ndarray
         """
 
-        self.X = data.apply(lambda x: (x - np.mean(x)) / (np.max(x) - np.min(x)))
+        self.scaler = preprocessing.StandardScaler()
+        self.X = self.scaler.fit_transform(data)
 
-        return X
+        #self.X = data.apply(lambda x: (x - np.mean(x)) / (np.max(x) - np.min(x)))
 
     def removeAllZeroes(self, data):
         """
@@ -151,7 +157,7 @@ class DataClean :
 
         return data.dropna(axis=1, how="all")
 
-    def bootstrap_resample(X, n=None):
+    def bootstrap_resample( X, n=None):
         """ Bootstrap resample an array_like
         source: https://gist.github.com/aflaxman/6871948
         Parameters
@@ -171,8 +177,42 @@ class DataClean :
             n = len(X)
 
         resample_i = np.floor(np.random.rand(n) * len(X)).astype(int)
-        X_resample = np.array(X[resample_i])  # TODO: write a test demonstrating why array() is important
+        X_resample = np.array(X[resample_i])
+        # TODO: write a test demonstrating why array() is important
+
         return X_resample
+
+    def catagory2vector(self, feature):
+        """
+        convert a catagorical feature into a hot vector
+        Parameters
+        ----------
+        :param feature: str, the feature name for processing
+
+        Results
+        -------
+        :return:
+        """
+
+        # get the unique values in the feature values
+        unique = sorted(self.X[feature].unique().values)
+
+        # generate an empty vector (M*N dimension)
+        # M = n_samples
+        # N = n_unique_catagories
+        vector = np.zeros((self.X.shape[0], len(unique)))
+
+        # the values for all samples for the feature
+        values = self.X[feature].values
+
+        # construct the hot-vector
+        for i in range(len(values)) :
+            vector[i] = (unique == values[i]) * 1
+
+        # assign each of the hot-vector feature to original dataset
+        self.X.drop([feature, ])
+        for i in range(len(unique)) :
+            self.X[ feature+"_"+str(i)] = vector[:, i]
 
 class ModelEvaluation :
 

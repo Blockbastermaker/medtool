@@ -113,7 +113,7 @@ class DataSetClean :
         print(np.arange(self.dataframe_clean.shape[0]))
         self.dataframe_clean.reindex(index=np.arange(self.dataframe_clean.shape[0]))
 
-    def process_resultf(self, result_f="", measurements=[], patients_num=0, units=None):
+    def process_resultf(self, measuretype_f = "", result_f="", measurements=[],):
         '''
         add the measurements to the cleaned dataset (pd.DataFrame)
         ----------------------
@@ -125,14 +125,9 @@ class DataSetClean :
         '''
 
         if len(measurements) :
-            result_values = self.dataframe[result_f].values
-
-            result_values = np.reshape(result_values, (patients_num, len(measurements) ))
-
-            print(result_values.shape)
-
-            for i in range(len(measurements)) :
-                self.dataframe_clean[self.measure_newtype[i]] = result_values[:, i]
+            for m in measurements :
+                val = self.dataframe[self.dataframe[measuretype_f] == m ][result_f].values
+                self.dataframe_clean[m] = val
         else :
             pass
 
@@ -222,5 +217,6 @@ class LoadQPCRData :
         '''
 
         return self.df.iloc[index]
+
 
 
